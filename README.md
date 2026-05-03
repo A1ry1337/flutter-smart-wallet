@@ -1,16 +1,96 @@
-# Flutter Smart Wallet Balanced
+# Flutter Smart Wallet — с роутингом (go_router)
 
-Это средний вариант архитектуры: не один файл, но и не сложный enterprise-шаблон.
+Тот же проект, но теперь с полноценным декларативным роутингом на [go_router](https://pub.dev/packages/go_router).
+
+## Что изменилось
+
+| До | После |
+|----|-------|
+| `switch` в `AnimatedBuilder` внутри `app.dart` | `GoRouter` с декларативными маршрутами |
+| `MaterialApp(home: ...)` | `MaterialApp.router(routerConfig: _router)` |
+| Один экран `/login+register` переключался setState | Два отдельных маршрута `/login` и `/register` |
+| Навигация — прямая передача виджетов | `context.go(AppRoutes.xxx)` через константы |
+| Auth-guard — нет | Auth-guard через `redirect` + `refreshListenable` |
+
+## Новые файлы
+
+```text
+lib/core/router/
+  app_routes.dart   — константы всех путей (единственное место с URL-строками)
+  app_router.dart   — GoRouter + auth-guard redirect
+```
+
+## Как работает auth-guard
+
+```
+AuthController.notifyListeners()
+       ↓
+GoRouter.refreshListenable срабатывает
+       ↓
+redirect() вызывается для текущего маршрута
+       ↓
+checking       → /
+unauthenticated + закрытый маршрут → /login
+authenticated  + открытый маршрут  → /home
+```
+
+Ни один экран не делает `context.go` при смене статуса — роутер сам это замечает.
+
+## Маршруты
+
+| Путь        | Доступ            | Экран           |
+|-------------|-------------------|-----------------|
+| `/`         | всегда (сплеш)    | `_SplashPage`   |
+| `/login`    | только неавторизованные | `AuthPage(login)` |
+| `/register` | только неавторизованные | `AuthPage(register)` |
+| `/home`     | только авторизованные | `HomePage`    |
+
+## Как добавить новую фичу
+
+1. Добавь константу в `app_routes.dart`:
+   ```dart
+   static const String cards = '/cards';
+   ```
+
+2. Добавь `GoRoute` в `app_router.dart`:
+   ```dart
+   GoRoute(
+     path: AppRoutes.cards,
+     builder: (_, __) => CardsPage(...),
+   ),
+   ```
+
+3. Создай фичу по стандартной структуре:
+   ```text
+   features/cards/
+     data/    — CardsApi, CardsRepository
+     models/  — Card, ...
+     state/   — CardsController
+     ui/      — CardsPage
+   ```
+
+4. Навигация из любого виджета:
+   ```dart
+   context.go(AppRoutes.cards);
+   context.push(AppRoutes.cards); // если нужна кнопка «назад»
+   ```
 
 ## Что уже работает
 
-- регистрация через `POST /api/auth/register`;
-- вход через `POST /api/auth/login`;
-- выход через `POST /api/auth/logout`;
-- автоматический refresh через `POST /api/auth/refresh`;
-- проверка защищённого endpoint `GET /test/get_user_from_jwt`;
-- refresh token и access token сохраняются через `TokenStorage`;
-- если защищённый запрос вернул `401` или `403`, приложение пробует обновить токены и повторить запрос.
+- регистрация → `POST /api/auth/register`
+- вход → `POST /api/auth/login`
+- выход → `POST /api/auth/logout`
+- авто-refresh → `POST /api/auth/refresh`
+- защищённый endpoint → `GET /test/get_user_from_jwt`
+- токены сохраняются через `TokenStorage`
+- 401/403 → авто-retry с refresh, иначе forceLogout → guard редиректит на /login
+
+## Запуск
+
+```bash
+flutter pub get
+flutter run -d chrome --web-port=5173 --dart-define=API_BASE_URL=http://localhost:8080
+```
 
 ## Структура
 
@@ -20,77 +100,23 @@ lib/
   app.dart
 
   core/
-    config/          # настройки приложения
-    errors/          # общие ошибки
-    network/         # общий API client
-    storage/         # хранение токенов
+    config/        — AppConfig
+    errors/        — AppException, ApiException
+    network/       — ApiClient (JWT + авто-refresh)
+    router/        — app_routes.dart, app_router.dart  ← NEW
+    storage/       — TokenStorage, SharedPrefsTokenStorage
 
   features/
     auth/
-      data/          # AuthApi, AuthRepository
-      models/        # AuthSession
-      state/         # AuthController на ChangeNotifier
-      ui/            # экран логина/реги
+      data/        — AuthApi, AuthRepository
+      models/      — AuthSession
+      state/       — AuthController (ChangeNotifier + refreshListenable)
+      ui/          — AuthPage (принимает initialMode)
 
     home/
-      data/          # UserApi
-      ui/            # домашний экран
+      data/        — UserApi
+      ui/          — HomePage
 
   shared/
-    ui/              # переиспользуемые UI-компоненты
+    ui/            — AppButton, AppTextField
 ```
-
-## Почему так
-
-- `ui` не знает, как именно ходить в backend;
-- `state` управляет состоянием экрана;
-- `repository` решает бизнес-логику авторизации;
-- `api` знает конкретные URL backend;
-- `core/network` централизованно добавляет JWT и обновляет токены.
-
-Так потом легко добавить фичи:
-
-```text
-features/cards/
-features/profile/
-features/transactions/
-features/settings/
-```
-
-И внутри каждой фичи делать такие же папки: `data`, `models`, `state`, `ui`.
-
-## Запуск в браузере
-
-```bash
-flutter create .
-flutter pub get
-flutter run -d chrome --web-port=5173 --dart-define=API_BASE_URL=http://localhost:8080
-```
-
-Открыть:
-
-```text
-http://localhost:5173
-```
-
-Backend должен быть запущен на:
-
-```text
-http://localhost:8080
-```
-
-## Если запросы из браузера блокируются
-
-Добавь CORS-конфиг в Spring Boot. Пример лежит здесь:
-
-```text
-backend_examples/CorsConfig.java
-```
-
-## Важно про токены
-
-Для простого запуска в браузере используется `shared_preferences`.
-
-Для настоящего production web лучше хранить refresh token не в local storage, а в `HttpOnly Secure SameSite` cookie на backend-стороне.
-
-Для мобильной версии можно заменить только реализацию `TokenStorage`, не трогая остальную архитектуру.

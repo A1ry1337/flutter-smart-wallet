@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/router/app_routes.dart';
 import '../../../shared/ui/app_button.dart';
 import '../../../shared/ui/app_text_field.dart';
 import '../state/auth_controller.dart';
@@ -10,9 +12,11 @@ class AuthPage extends StatefulWidget {
   const AuthPage({
     super.key,
     required this.authController,
+    this.initialMode = AuthMode.login,
   });
 
   final AuthController authController;
+  final AuthMode initialMode;
 
   @override
   State<AuthPage> createState() => _AuthPageState();
@@ -23,7 +27,7 @@ class _AuthPageState extends State<AuthPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  AuthMode _mode = AuthMode.login;
+  late AuthMode _mode = widget.initialMode;
 
   bool get _isLogin => _mode == AuthMode.login;
 
@@ -35,9 +39,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
@@ -47,12 +49,18 @@ class _AuthPageState extends State<AuthPage> {
     } else {
       await widget.authController.register(username: username, password: password);
     }
+    // Редирект на /home происходит автоматически через auth-guard,
+    // когда AuthController.status меняется на authenticated.
   }
 
+  /// Переключаем режим через роутер (отдельные URL для логина и регистрации).
+  /// Это позволяет использовать кнопку «Назад» браузера / устройства.
   void _toggleMode() {
-    setState(() {
-      _mode = _isLogin ? AuthMode.register : AuthMode.login;
-    });
+    if (_isLogin) {
+      context.go(AppRoutes.register);
+    } else {
+      context.go(AppRoutes.login);
+    }
   }
 
   @override

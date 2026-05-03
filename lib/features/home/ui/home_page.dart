@@ -39,6 +39,7 @@ class _HomePageState extends State<HomePage> {
       });
     } on ApiException catch (e) {
       if (e.statusCode == 401 || e.statusCode == 403) {
+        // forceLogout меняет AuthStatus → auth-guard сам редиректит на /login
         await widget.authController.forceLogout(message: 'Сессия истекла');
         return;
       }
@@ -61,6 +62,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _logout() async {
+    // logout меняет AuthStatus → auth-guard редиректит на /login автоматически
     await widget.authController.logout();
   }
 

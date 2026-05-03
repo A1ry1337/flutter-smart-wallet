@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'core/router/app_router.dart';
 import 'features/auth/state/auth_controller.dart';
-import 'features/auth/ui/auth_page.dart';
 import 'features/home/data/user_api.dart';
-import 'features/home/ui/home_page.dart';
 
-class SmartWalletApp extends StatelessWidget {
+class SmartWalletApp extends StatefulWidget {
   const SmartWalletApp({
     super.key,
     required this.authController,
@@ -16,8 +15,18 @@ class SmartWalletApp extends StatelessWidget {
   final UserApi userApi;
 
   @override
+  State<SmartWalletApp> createState() => _SmartWalletAppState();
+}
+
+class _SmartWalletAppState extends State<SmartWalletApp> {
+  late final _router = createRouter(
+    authController: widget.authController,
+    userApi: widget.userApi,
+  );
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Smart Wallet',
       theme: ThemeData(
@@ -27,34 +36,7 @@ class SmartWalletApp extends StatelessWidget {
           filled: true,
         ),
       ),
-      home: AnimatedBuilder(
-        animation: authController,
-        builder: (context, _) {
-          return switch (authController.status) {
-            AuthStatus.checking => const _SplashPage(),
-            AuthStatus.unauthenticated => AuthPage(
-                authController: authController,
-              ),
-            AuthStatus.authenticated => HomePage(
-                authController: authController,
-                userApi: userApi,
-              ),
-          };
-        },
-      ),
-    );
-  }
-}
-
-class _SplashPage extends StatelessWidget {
-  const _SplashPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
+      routerConfig: _router,
     );
   }
 }

@@ -21,16 +21,24 @@ class AuthController extends ChangeNotifier {
   bool get isAuthenticated => status == AuthStatus.authenticated;
 
   Future<void> restoreSession() async {
+    print('RESTORE START');
+
     status = AuthStatus.checking;
-    errorMessage = null;
     notifyListeners();
 
     try {
       final hasSession = await _authRepository.hasSavedSession();
-      status = hasSession ? AuthStatus.authenticated : AuthStatus.unauthenticated;
-    } catch (_) {
+      print('HAS SESSION: $hasSession');
+
+      status = hasSession
+          ? AuthStatus.authenticated
+          : AuthStatus.unauthenticated;
+    } catch (e) {
+      print('ERROR: $e');
       status = AuthStatus.unauthenticated;
     }
+
+    print('STATUS: $status');
 
     notifyListeners();
   }
