@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_wallet_balanced/core/router/app_routes.dart';
+import 'package:flutter_smart_wallet_balanced/features/auth/state/auth_controller.dart';
+import 'package:flutter_smart_wallet_balanced/features/auth/ui/register_modal.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/router/app_routes.dart';
-import '../../../shared/ui/app_button.dart';
-import '../../../shared/ui/app_text_field.dart';
-import '../state/auth_controller.dart';
-
+import 'auth_layout.dart';
+import 'login_modal.dart';
 enum AuthMode { login, register }
 
 class AuthPage extends StatefulWidget {
@@ -27,9 +27,7 @@ class _AuthPageState extends State<AuthPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  late AuthMode _mode = widget.initialMode;
-
-  bool get _isLogin => _mode == AuthMode.login;
+  bool get _isLogin => widget.initialMode == AuthMode.login;
 
   @override
   void dispose() {
@@ -45,119 +43,45 @@ class _AuthPageState extends State<AuthPage> {
     final password = _passwordController.text;
 
     if (_isLogin) {
-      await widget.authController.login(username: username, password: password);
+      await widget.authController.login(
+        username: username,
+        password: password,
+      );
     } else {
-      await widget.authController.register(username: username, password: password);
+      await widget.authController.register(
+        username: username,
+        password: password,
+      );
     }
-    // Редирект на /home происходит автоматически через auth-guard,
-    // когда AuthController.status меняется на authenticated.
   }
 
-  /// Переключаем режим через роутер (отдельные URL для логина и регистрации).
-  /// Это позволяет использовать кнопку «Назад» браузера / устройства.
-  void _toggleMode() {
-    if (_isLogin) {
-      context.go(AppRoutes.register);
-    } else {
-      context.go(AppRoutes.login);
-    }
+  void _goToRegister() {
+    context.go(AppRoutes.register);
+  }
+
+  void _goToLogin() {
+    context.go(AppRoutes.login);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: AnimatedBuilder(
-              animation: widget.authController,
-              builder: (context, _) {
-                final controller = widget.authController;
-
-                return Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    side: BorderSide(color: Theme.of(context).dividerColor),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            _isLogin ? 'Вход' : 'Регистрация',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Spring Smart Wallet',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 24),
-                          AppTextField(
-                            controller: _usernameController,
-                            label: 'Username',
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Введите username';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          AppTextField(
-                            controller: _passwordController,
-                            label: 'Password',
-                            obscureText: true,
-                            validator: (value) {
-                              if (value == null || value.length < 4) {
-                                return 'Пароль должен быть минимум 4 символа';
-                              }
-                              return null;
-                            },
-                          ),
-                          if (controller.errorMessage != null) ...[
-                            const SizedBox(height: 16),
-                            Text(
-                              controller.errorMessage!,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                          const SizedBox(height: 24),
-                          AppButton(
-                            text: _isLogin ? 'Войти' : 'Создать аккаунт',
-                            isLoading: controller.isSubmitting,
-                            onPressed: _submit,
-                          ),
-                          const SizedBox(height: 12),
-                          TextButton(
-                            onPressed: controller.isSubmitting ? null : _toggleMode,
-                            child: Text(
-                              _isLogin
-                                  ? 'Нет аккаунта? Зарегистрироваться'
-                                  : 'Уже есть аккаунт? Войти',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
+    return AuthLayout(
+      modal: _isLogin
+          ? LoginModal(
+        formKey: _formKey,
+        usernameController: _usernameController,
+        passwordController: _passwordController,
+        authController: widget.authController,
+        onSubmit: _submit,
+        onGoToRegister: _goToRegister,
+      )
+          : RegisterModal(
+        formKey: _formKey,
+        usernameController: _usernameController,
+        passwordController: _passwordController,
+        authController: widget.authController,
+        onSubmit: _submit,
+        onGoToLogin: _goToLogin,
       ),
     );
   }
