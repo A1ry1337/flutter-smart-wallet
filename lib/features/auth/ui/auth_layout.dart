@@ -11,6 +11,7 @@ class AuthLayout extends StatelessWidget {
 
   static const String _backgroundImage = 'assets/images/auth/auth_background.jpg';
   static const String _rightImage = 'assets/images/auth/auth_right.svg';
+  static const String _rightImage2 = 'assets/images/auth/auth_right1.svg'; //todo менять фото логин/регистрация
 
   @override
   Widget build(BuildContext context) {
@@ -22,21 +23,24 @@ class AuthLayout extends StatelessWidget {
       body: Stack(
         children: [
           const _AuthBackground(),
-
           SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isMobile ? 20 : 48,
-                  vertical: 24,
-                ),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(),
-                  child: isMobile
-                      ? _MobileAuthLayout(modal: modal)
-                      : _DesktopAuthLayout(modal: modal),
-                ),
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 20 : 48,
+                    vertical: 24,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight - 48,
+                    ),
+                    child: isMobile
+                        ? _MobileAuthLayout(modal: modal)
+                        : _DesktopAuthLayout(modal: modal),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -54,25 +58,27 @@ class _DesktopAuthLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height - 48,
+    return IntrinsicHeight(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Expanded(
             flex: 3,
-            child: Padding(
-              padding: EdgeInsets.only(top: 32),
-              child: _AuthTextBlock(),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: EdgeInsets.only(top: 32),
+                child: _AuthTextBlock(),
+              ),
             ),
           ),
 
           const SizedBox(width: 40),
 
-          Padding(
-            padding: const EdgeInsets.only(top: 200),
-            child: SizedBox(
-              width: 470,
+          SizedBox(
+            width: 470,
+            child: Align(
+              alignment: Alignment.center,
               child: modal,
             ),
           ),
@@ -81,9 +87,12 @@ class _DesktopAuthLayout extends StatelessWidget {
 
           const Expanded(
             flex: 3,
-            child: Padding(
-              padding: EdgeInsets.only(top: 0),
-              child: _AuthImageBlock(),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: EdgeInsets.only(top: 200),
+                child: _AuthImageBlock(),
+              ),
             ),
           ),
         ],
@@ -136,135 +145,70 @@ class _AuthTextBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 520),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _AuthLogo(),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 520),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _AuthLogo(),
 
-            const SizedBox(height: 48),
+          const SizedBox(height: 48),
 
-            const _AuthBadge(),
+          const _AuthBadge(),
 
-            const SizedBox(height: 48),
+          const SizedBox(height: 48),
 
-            Text(
-              'Все заявки и клиенты\nв одном месте',
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                fontSize: 40,
-                height: 1.12,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -1.2,
-                color: Colors.black,
-              ),
+          Text(
+            'Все заявки и клиенты\nв одном месте',
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              fontSize: 40,
+              height: 1.12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1.2,
+              color: Colors.black,
             ),
+          ),
 
-            const SizedBox(height: 22),
+          const SizedBox(height: 22),
 
-            Text(
-              'Удобная система для мастеров и небольших команд.\n'
-                  'Больше никаких потерянных заявок и клиентов\n'
-                  'в мессенджерах и таблицах.',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 16,
-                height: 1.32,
-                fontWeight: FontWeight.w400,
-                color: const Color(0xFF333333),
-              ),
+          Text(
+            'Удобная система для мастеров и небольших команд.\n'
+                'Больше никаких потерянных заявок и клиентов\n'
+                'в мессенджерах и таблицах.',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontSize: 16,
+              height: 1.32,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF333333),
             ),
+          ),
 
-            const SizedBox(height: 48),
+          const SizedBox(height: 48),
 
-            const _FeatureItem(
-              icon: Icons.check_rounded,
-              title: 'Заявки под контролем',
-              subtitle: 'Статусы, комментарии, история',
-            ),
+          const _FeatureItem(
+            icon: Icons.check_rounded,
+            title: 'Заявки под контролем',
+            subtitle: 'Статусы, комментарии, история',
+          ),
 
-            const SizedBox(height: 34),
+          const SizedBox(height: 34),
 
-            const _FeatureItem(
-              icon: Icons.campaign_outlined,
-              title: 'Клиенты и история',
-              subtitle: 'Вся информация о клиентах и их заявках',
-            ),
+          const _FeatureItem(
+            icon: Icons.campaign_outlined,
+            title: 'Клиенты и история',
+            subtitle: 'Вся информация о клиентах и их заявках',
+          ),
 
-            const SizedBox(height: 34),
+          const SizedBox(height: 34),
 
-            const _FeatureItem(
-              icon: Icons.notifications_none_rounded,
-              title: 'Уведомления',
-              subtitle: 'Не пропустите ни одной новой заявки',
-            ),
-          ],
-        ),
+          const _FeatureItem(
+            icon: Icons.notifications_none_rounded,
+            title: 'Уведомления',
+            subtitle: 'Не пропустите ни одной новой заявки',
+          ),
+        ],
       ),
-    );
-  }
-}
-
-class _FeatureItem extends StatelessWidget {
-  const _FeatureItem({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 70,
-          height: 70,
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAF1FF),
-            borderRadius: BorderRadius.circular(11),
-          ),
-          alignment: Alignment.center,
-          child: Icon(
-            icon,
-            size: 40,
-            color: const Color(0xFF155DFF),
-          ),
-        ),
-        const SizedBox(width: 20),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 16,
-                  height: 1.2,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF222222),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                subtitle,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontSize: 16,
-                  height: 1.25,
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF444444),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
@@ -340,6 +284,67 @@ class _AuthBadge extends StatelessWidget {
   }
 }
 
+class _FeatureItem extends StatelessWidget {
+  const _FeatureItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 70,
+          height: 70,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEAF1FF),
+            borderRadius: BorderRadius.circular(11),
+          ),
+          alignment: Alignment.center,
+          child: Icon(
+            icon,
+            size: 40,
+            color: const Color(0xFF155DFF),
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontSize: 16,
+                  height: 1.2,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF222222),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                subtitle,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: 16,
+                  height: 1.25,
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF444444),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class _AuthImageBlock extends StatelessWidget {
   const _AuthImageBlock({
@@ -350,17 +355,14 @@ class _AuthImageBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(36),
-        child: SizedBox(
-          height: isMobile ? 220 : 520,
-          width: double.infinity,
-          child: SvgPicture.asset(
-            AuthLayout._rightImage,
-            fit: BoxFit.contain,
-          ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(36),
+      child: SizedBox(
+        height: isMobile ? 220 : 520,
+        width: double.infinity,
+        child: SvgPicture.asset(
+          AuthLayout._rightImage,
+          fit: BoxFit.contain,
         ),
       ),
     );

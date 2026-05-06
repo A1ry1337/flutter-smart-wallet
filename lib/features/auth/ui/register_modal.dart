@@ -36,6 +36,10 @@ class RegisterModal extends StatelessWidget {
           color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(
+              color: Color(0xFFE0E0E0),
+              width: 1,
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
