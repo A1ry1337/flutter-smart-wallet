@@ -63,6 +63,7 @@ class LoginModal extends StatelessWidget {
                   AppTextField(
                     controller: usernameController,
                     label: 'Логин',
+                    hintText: 'Введите логин',
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'Введите Логин';
@@ -75,6 +76,7 @@ class LoginModal extends StatelessWidget {
                   AppTextField(
                     controller: passwordController,
                     label: 'Пароль',
+                    hintText: 'Введите пароль',
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.length < 4) {
