@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_wallet_balanced/features/auth/state/auth_controller.dart';
-import 'package:flutter_smart_wallet_balanced/shared/ui/app_button.dart';
-import 'package:flutter_smart_wallet_balanced/shared/ui/app_text_field.dart';
-
-
+import 'package:kliensy/features/auth/state/auth_controller.dart';
+import 'package:kliensy/shared/ui/app_button.dart';
+import 'package:kliensy/shared/ui/app_text_field.dart';
 
 class RegisterModal extends StatelessWidget {
   const RegisterModal({
     super.key,
     required this.formKey,
+    required this.businessNameController,
+    required this.fullNameController,
     required this.usernameController,
     required this.passwordController,
     required this.authController,
@@ -17,6 +17,8 @@ class RegisterModal extends StatelessWidget {
   });
 
   final GlobalKey<FormState> formKey;
+  final TextEditingController businessNameController;
+  final TextEditingController fullNameController;
   final TextEditingController usernameController;
   final TextEditingController passwordController;
   final AuthController authController;
@@ -29,14 +31,14 @@ class RegisterModal extends StatelessWidget {
       animation: authController,
       builder: (context, _) {
         return Card(
-          elevation: 22,
-          shadowColor: Colors.black.withOpacity(0.12),
+          elevation: 18,
+          shadowColor: Colors.black.withOpacity(0.18),
           color: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(28),
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
             child: Form(
               key: formKey,
               child: Column(
@@ -44,37 +46,74 @@ class RegisterModal extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Регистрация',
+                    'Создайте аккаунт',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 8),
+
+                  const SizedBox(height: 14),
+
                   Text(
-                    'Создай аккаунт Smart Wallet',
+                    'Начните работать с клиентами\nи заявками уже сегодня',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.black54,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: 16,
+                      color: Colors.black87,
                     ),
                   ),
-                  const SizedBox(height: 28),
+
+                  const SizedBox(height: 18),
 
                   AppTextField(
-                    controller: usernameController,
-                    label: 'Username',
+                    controller: businessNameController,
+                    label: 'Название бизнеса',
+                    hintText: 'Введите название бизнеса',
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Введите username';
+                        return 'Введите название бизнеса';
                       }
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 10),
+
+                  AppTextField(
+                    controller: fullNameController,
+                    label: 'Ф.И.О.',
+                    hintText: 'Введите Ваше Ф.И.О.',
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Введите Ф.И.О.';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  AppTextField(
+                    controller: usernameController,
+                    label: 'Логин',
+                    hintText: 'Введите логин',
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Введите Логин';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
 
                   AppTextField(
                     controller: passwordController,
-                    label: 'Password',
+                    label: 'Пароль',
+                    hintText: 'Пароль',
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.length < 4) {
@@ -85,29 +124,58 @@ class RegisterModal extends StatelessWidget {
                   ),
 
                   if (authController.errorMessage != null) ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Text(
                       authController.errorMessage!,
                       textAlign: TextAlign.center,
                       style: TextStyle(
+                        fontSize: 12,
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                   ],
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   AppButton(
                     text: 'Создать аккаунт',
                     isLoading: authController.isSubmitting,
                     onPressed: onSubmit,
+                    height: 40
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
 
-                  TextButton(
-                    onPressed: authController.isSubmitting ? null : onGoToLogin,
-                    child: const Text('Уже есть аккаунт? Войти'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Уже есть аккаунт? ',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: InkWell(
+                          onTap: authController.isSubmitting ? null : onGoToLogin,
+                          hoverColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          child: Text(
+                            'Войти',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: authController.isSubmitting
+                                  ? Colors.grey
+                                  : const Color(0xFF0A3CC0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

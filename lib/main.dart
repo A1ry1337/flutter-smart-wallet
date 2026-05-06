@@ -35,7 +35,7 @@ Future<void> main() async {
   await authController.restoreSession();
 
   runApp(
-    SmartWalletApp(
+    KliensyApp(
       authController: authController,
       userApi: userApi,
     ),

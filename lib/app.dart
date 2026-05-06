@@ -4,8 +4,8 @@ import 'core/router/app_router.dart';
 import 'features/auth/state/auth_controller.dart';
 import 'features/home/data/user_api.dart';
 
-class SmartWalletApp extends StatefulWidget {
-  const SmartWalletApp({
+class KliensyApp extends StatefulWidget {
+  const KliensyApp({
     super.key,
     required this.authController,
     required this.userApi,
@@ -15,10 +15,10 @@ class SmartWalletApp extends StatefulWidget {
   final UserApi userApi;
 
   @override
-  State<SmartWalletApp> createState() => _SmartWalletAppState();
+  State<KliensyApp> createState() => _KliensyAppState();
 }
 
-class _SmartWalletAppState extends State<SmartWalletApp> {
+class _KliensyAppState extends State<KliensyApp> {
   late final _router = createRouter(
     authController: widget.authController,
     userApi: widget.userApi,
@@ -28,7 +28,7 @@ class _SmartWalletAppState extends State<SmartWalletApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Smart Wallet',
+      title: 'Kliensy',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

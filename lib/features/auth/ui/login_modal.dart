@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_wallet_balanced/features/auth/state/auth_controller.dart';
-import 'package:flutter_smart_wallet_balanced/shared/ui/app_button.dart';
-import 'package:flutter_smart_wallet_balanced/shared/ui/app_text_field.dart';
+import 'package:kliensy/features/auth/state/auth_controller.dart';
+import 'package:kliensy/shared/ui/app_button.dart';
+import 'package:kliensy/shared/ui/app_text_field.dart';
 
 
 class LoginModal extends StatelessWidget {
@@ -28,14 +28,14 @@ class LoginModal extends StatelessWidget {
       animation: authController,
       builder: (context, _) {
         return Card(
-          elevation: 22,
-          shadowColor: Colors.black.withOpacity(0.12),
+          elevation: 18,
+          shadowColor: Colors.black.withOpacity(0.18),
           color: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(28),
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
             child: Form(
               key: formKey,
               child: Column(
@@ -43,28 +43,29 @@ class LoginModal extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Вход',
+                    'Войдите в свой аккаунт',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 14),
                   Text(
-                    'Добро пожаловать обратно',
+                    'Управляйте заявками и клиентами\nвашего бизнеса в одном месте',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.black54,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: 16,
+                      color: Colors.black87,
                     ),
                   ),
                   const SizedBox(height: 28),
 
                   AppTextField(
                     controller: usernameController,
-                    label: 'Username',
+                    label: 'Логин',
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Введите username';
+                        return 'Введите Логин';
                       }
                       return null;
                     },
@@ -73,7 +74,7 @@ class LoginModal extends StatelessWidget {
 
                   AppTextField(
                     controller: passwordController,
-                    label: 'Password',
+                    label: 'Пароль',
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.length < 4) {
@@ -104,10 +105,36 @@ class LoginModal extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
-                  TextButton(
-                    onPressed:
-                    authController.isSubmitting ? null : onGoToRegister,
-                    child: const Text('Нет аккаунта? Зарегистрироваться'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Нет аккаунта? ',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: InkWell(
+                          onTap: authController.isSubmitting ? null : onGoToRegister,
+                          hoverColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          child: Text(
+                            'Зарегистрироваться',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: authController.isSubmitting
+                                  ? Colors.grey
+                                  : const Color(0xFF0A3CC0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

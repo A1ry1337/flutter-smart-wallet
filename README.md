@@ -1,4 +1,4 @@
-# Flutter Smart Wallet — с роутингом (go_router)
+# Flutter kliensy — с роутингом (go_router)
 
 Тот же проект, но теперь с полноценным декларативным роутингом на [go_router](https://pub.dev/packages/go_router).
 

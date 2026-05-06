@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_wallet_balanced/core/router/app_routes.dart';
-import 'package:flutter_smart_wallet_balanced/features/auth/state/auth_controller.dart';
-import 'package:flutter_smart_wallet_balanced/features/auth/ui/register_modal.dart';
+import 'package:kliensy/core/router/app_routes.dart';
+import 'package:kliensy/features/auth/state/auth_controller.dart';
+import 'package:kliensy/features/auth/ui/register_modal.dart';
 import 'package:go_router/go_router.dart';
 
 import 'auth_layout.dart';
@@ -26,6 +26,8 @@ class _AuthPageState extends State<AuthPage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _businessNameController = TextEditingController();
+  final _fullNameController = TextEditingController();
 
   bool get _isLogin => widget.initialMode == AuthMode.login;
 
@@ -82,6 +84,8 @@ class _AuthPageState extends State<AuthPage> {
         authController: widget.authController,
         onSubmit: _submit,
         onGoToLogin: _goToLogin,
+        businessNameController: _businessNameController,
+        fullNameController: _fullNameController,
       ),
     );
   }

@@ -54,7 +54,6 @@ class _DesktopAuthLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 640,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
