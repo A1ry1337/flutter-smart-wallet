@@ -83,8 +83,6 @@ class _DesktopAuthLayout extends StatelessWidget {
         final hideRightImage = availableWidth < _hideRightImageBreakpoint;
 
         if (hideRightImage) {
-          final availableWidth = constraints.maxWidth;
-
           final gap = (availableWidth - _leftMaxWidth - _modalWidth).clamp(
             32.0,
             _leftToModalGap,
@@ -92,31 +90,33 @@ class _DesktopAuthLayout extends StatelessWidget {
 
           final leftWidth = availableWidth - gap - _modalWidth;
 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: leftWidth.clamp(300.0, _leftMaxWidth),
-                child: const Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 50),
-                    child: _AuthTextBlock(),
+          return IntrinsicHeight(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  width: leftWidth.clamp(300.0, _leftMaxWidth),
+                  child: const Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 50),
+                      child: _AuthTextBlock(),
+                    ),
                   ),
                 ),
-              ),
 
-              SizedBox(width: gap),
+                SizedBox(width: gap),
 
-              SizedBox(
-                width: _modalWidth,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: modal,
+                SizedBox(
+                  width: _modalWidth,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: modal,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         }
 
@@ -198,14 +198,10 @@ class _MobileAuthLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const _AuthTextBlock(),
-        const SizedBox(height: 28),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
           child: modal,
         ),
-        const SizedBox(height: 28),
-        const _AuthImageBlock(isMobile: true),
       ],
     );
   }
