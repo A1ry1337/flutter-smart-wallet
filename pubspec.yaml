@@ -18,7 +18,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/auth/auth_background.jpg
-    - assets/images/auth/auth_right.svg
+    - assets/images/auth/auth_right_login.svg
+    - assets/images/auth/auth_right_register.svg
 
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:kliensy/core/router/app_routes.dart';
-import 'package:kliensy/features/auth/state/auth_controller.dart';
-import 'package:kliensy/features/auth/ui/register_modal.dart';
 import 'package:go_router/go_router.dart';
 
-import 'auth_layout.dart';
-import 'login_modal.dart';
+import 'package:kliensy/core/router/app_routes.dart';
+import 'package:kliensy/features/auth/state/auth_controller.dart';
+import 'package:kliensy/features/auth/ui/layout/auth_layout.dart';
+import 'package:kliensy/features/auth/ui/modals/login_modal.dart';
+import 'package:kliensy/features/auth/ui/modals/register_modal.dart';
+
+export 'package:kliensy/features/auth/ui/auth_page.dart';
+
 enum AuthMode { login, register }
 
 class AuthPage extends StatefulWidget {
@@ -35,6 +38,8 @@ class _AuthPageState extends State<AuthPage> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _businessNameController.dispose();
+    _fullNameController.dispose();
     super.dispose();
   }
 
@@ -57,36 +62,35 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
-  void _goToRegister() {
-    context.go(AppRoutes.register);
-  }
-
-  void _goToLogin() {
-    context.go(AppRoutes.login);
-  }
-
   @override
   Widget build(BuildContext context) {
     return AuthLayout(
-      modal: _isLogin
-          ? LoginModal(
-        formKey: _formKey,
-        usernameController: _usernameController,
-        passwordController: _passwordController,
-        authController: widget.authController,
-        onSubmit: _submit,
-        onGoToRegister: _goToRegister,
-      )
-          : RegisterModal(
-        formKey: _formKey,
-        usernameController: _usernameController,
-        passwordController: _passwordController,
-        authController: widget.authController,
-        onSubmit: _submit,
-        onGoToLogin: _goToLogin,
-        businessNameController: _businessNameController,
-        fullNameController: _fullNameController,
-      ),
+      mode: widget.initialMode,
+      modal: _isLogin ? _buildLoginModal() : _buildRegisterModal(),
+    );
+  }
+
+  Widget _buildLoginModal() {
+    return LoginModal(
+      formKey: _formKey,
+      usernameController: _usernameController,
+      passwordController: _passwordController,
+      authController: widget.authController,
+      onSubmit: _submit,
+      onGoToRegister: () => context.go(AppRoutes.register),
+    );
+  }
+
+  Widget _buildRegisterModal() {
+    return RegisterModal(
+      formKey: _formKey,
+      usernameController: _usernameController,
+      passwordController: _passwordController,
+      businessNameController: _businessNameController,
+      fullNameController: _fullNameController,
+      authController: widget.authController,
+      onSubmit: _submit,
+      onGoToLogin: () => context.go(AppRoutes.login),
     );
   }
 }
