@@ -36,21 +36,24 @@ class DesktopAuthLayout extends StatelessWidget {
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final available = constraints.maxWidth;
-            final hideImage = available < _kHideImageBreakpoint;
+      child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: _kMaxContentWidth),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final available = constraints.maxWidth;
+                final hideImage = available < _kHideImageBreakpoint;
 
-            return IntrinsicHeight(
-              child: hideImage
-                  ? _RowWithoutImage(available: available, modal: modal)
-                  : _RowWithImage(available: available, modal: modal, mode: mode),
-            );
-          },
-        ),
-      ),
+                return IntrinsicHeight(
+                  child: hideImage
+                      ? _RowWithoutImage(available: available, modal: modal)
+                      : _RowWithImage(available: available, modal: modal, mode: mode),
+                );
+              },
+            ),
+          )
+      )
     );
   }
 }
@@ -108,13 +111,16 @@ class _RowWithImage extends StatelessWidget {
         const SizedBox(width: _kLeftToModalGap),
         _ModalBlock(modal: modal),
         SizedBox(width: modalToImageGap),
-        SizedBox(
-          width: _kImageWidth,
-          child: Align(
-            alignment: Alignment.center,
-            child: AuthImageBlock(mode: mode),
+        Padding(
+          padding: EdgeInsets.only(top: 160),
+          child: SizedBox(
+            width: _kImageWidth,
+            child: Align(
+              alignment: Alignment.center,
+              child: AuthImageBlock(mode: mode),
+            ),
           ),
-        ),
+        )
       ],
     );
   }
@@ -147,11 +153,14 @@ class _ModalBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: _kModalWidth,
-      child: Align(
-        alignment: Alignment.center,
-        child: modal,
+    return Padding(
+      padding: EdgeInsets.only(top: 80),
+      child: SizedBox(
+        width: _kModalWidth,
+        child: Align(
+          alignment: Alignment.center,
+          child: modal,
+        ),
       ),
     );
   }
