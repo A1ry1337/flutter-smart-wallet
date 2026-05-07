@@ -16,34 +16,44 @@ class AuthLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final isMobile = width < 850;
+    final isMobile = width < 1040;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          const _AuthBackground(),
-          SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 20 : 48,
-                    vertical: 24,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: Container(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(AuthLayout._backgroundImage),
+                    fit: BoxFit.none,
+                    alignment: Alignment.center,
                   ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 20 : 48,
+                  vertical: 24,
+                ),
+                child: Center(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight - 48,
+                      maxWidth: 1824,
                     ),
                     child: isMobile
                         ? _MobileAuthLayout(modal: modal)
                         : _DesktopAuthLayout(modal: modal),
                   ),
-                );
-              },
-            ),
-          ),
-        ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -56,47 +66,123 @@ class _DesktopAuthLayout extends StatelessWidget {
 
   final Widget modal;
 
+  static const double _leftMaxWidth = 520;
+  static const double _modalWidth = 470;
+  static const double _imageWidth = 520;
+
+  static const double _leftToModalGap = 160;
+  static const double _modalToImageMaxGap = 200;
+
+  static const double _hideRightImageBreakpoint = 1600;
+
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Expanded(
-            flex: 3,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: EdgeInsets.only(top: 32),
-                child: _AuthTextBlock(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth;
+        final hideRightImage = availableWidth < _hideRightImageBreakpoint;
+
+        if (hideRightImage) {
+          final availableWidth = constraints.maxWidth;
+
+          final gap = (availableWidth - _leftMaxWidth - _modalWidth).clamp(
+            32.0,
+            _leftToModalGap,
+          );
+
+          final leftWidth = availableWidth - gap - _modalWidth;
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: leftWidth.clamp(300.0, _leftMaxWidth),
+                child: const Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 50),
+                    child: _AuthTextBlock(),
+                  ),
+                ),
               ),
-            ),
-          ),
 
-          const SizedBox(width: 40),
+              SizedBox(width: gap),
 
-          SizedBox(
-            width: 470,
-            child: Align(
-              alignment: Alignment.center,
-              child: modal,
-            ),
-          ),
-
-          const SizedBox(width: 40),
-
-          const Expanded(
-            flex: 3,
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: EdgeInsets.only(top: 200),
-                child: _AuthImageBlock(),
+              SizedBox(
+                width: _modalWidth,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: modal,
+                ),
               ),
-            ),
+            ],
+          );
+        }
+
+        // Сколько места осталось, если левая часть стоит в полном размере.
+        final freeSpaceAfterFullLayout =
+            availableWidth -
+                _leftMaxWidth -
+                _leftToModalGap -
+                _modalWidth -
+                _imageWidth;
+
+        // Этот gap сначала 200, потом уменьшается до 0.
+        final modalToImageGap = freeSpaceAfterFullLayout.clamp(
+          0.0,
+          _modalToImageMaxGap,
+        );
+
+        // Левая часть начинает уменьшаться только после того,
+        // как gap между модалкой и картинкой стал 0.
+        final leftWidth =
+            availableWidth -
+                _leftToModalGap -
+                _modalWidth -
+                modalToImageGap -
+                _imageWidth;
+
+        final safeLeftWidth = leftWidth.clamp(0.0, _leftMaxWidth);
+
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                width: safeLeftWidth,
+                child: const Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 50),
+                    child: _AuthTextBlock(),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: _leftToModalGap),
+
+              SizedBox(
+                width: _modalWidth,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: modal,
+                ),
+              ),
+
+              SizedBox(width: modalToImageGap),
+
+              const SizedBox(
+                width: _imageWidth,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: _AuthImageBlock(),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
