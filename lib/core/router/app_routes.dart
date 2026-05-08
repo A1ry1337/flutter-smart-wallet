@@ -1,7 +1,4 @@
 /// Централизованные имена и пути всех маршрутов приложения.
-///
-/// Добавляя новый экран — просто добавь сюда константу.
-/// Так ни один [context.go] не будет опечаткой в строке.
 abstract final class AppRoutes {
   // Auth
   static const String splash = '/';
@@ -10,11 +7,12 @@ abstract final class AppRoutes {
 
   // Main app (требуют авторизации)
   static const String home = '/home';
+  static const String requests = '/requests';
+  static const String requestDetail = '/requests/:id';
+  static const String clients = '/clients';
+  static const String clientDetail = '/clients/:id';
+  static const String settings = '/settings';
 
-  // Пример будущих маршрутов (раскомментируй при добавлении):
-  // static const String cards        = '/cards';
-  // static const String cardDetail   = '/cards/:id';
-  // static const String transactions = '/transactions';
-  // static const String profile      = '/profile';
-  // static const String settings     = '/settings';
+  static String requestDetailPath(int id) => '/requests/$id';
+  static String clientDetailPath(int id) => '/clients/$id';
 }

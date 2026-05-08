@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kliensy/core/errors/app_exception.dart';
+import 'package:kliensy/features/auth/state/auth_controller.dart';
+import 'package:kliensy/features/auth/ui/auth_page.dart';
+import 'package:kliensy/features/clients/state/clients_controller.dart';
+import 'package:kliensy/features/clients/ui/%20clients_page.dart';
+import 'package:kliensy/features/clients/ui/client_detail_page.dart';
+import 'package:kliensy/features/home/data/user_api.dart';
+import 'package:kliensy/features/home/ui/home_page.dart';
+import 'package:kliensy/features/requests/state/requests_controller.dart';
+import 'package:kliensy/features/requests/ui/%20request_detail_page.dart';
+import 'package:kliensy/features/requests/ui/requests_page.dart';
+import 'package:kliensy/features/settings/ui/settings_page.dart';
 
-import '../../features/auth/state/auth_controller.dart';
-import '../../features/auth/ui/auth_page.dart';
-import '../../features/home/data/user_api.dart';
-import '../../features/home/ui/home_page.dart';
-import '../errors/app_exception.dart';
+
 import 'app_routes.dart';
 
 /// Фабрика роутера.
@@ -16,11 +24,13 @@ import 'app_routes.dart';
 GoRouter createRouter({
   required AuthController authController,
   required UserApi userApi,
+  required RequestsController requestsController,
+  required ClientsController clientsController,
 }) {
   return GoRouter(
     debugLogDiagnostics: true,
     initialLocation: AppRoutes.splash,
-    refreshListenable: authController,   // перерисовка guard при смене auth-статуса
+    refreshListenable: authController,
     redirect: _authGuard(authController),
     routes: [
       // ── Splash ──────────────────────────────────────────────────────────
@@ -45,7 +55,7 @@ GoRouter createRouter({
         ),
       ),
 
-      // ── Protected ────────────────────────────────────────────────────────
+      // ── Protected / legacy home ──────────────────────────────────────────
       GoRoute(
         path: AppRoutes.home,
         builder: (_, __) => HomePage(
@@ -54,31 +64,75 @@ GoRouter createRouter({
         ),
       ),
 
-      // Пример как легко добавить новые защищённые маршруты:
-      //
-      // GoRoute(
-      //   path: AppRoutes.cards,
-      //   builder: (_, __) => CardsPage(...),
-      //   routes: [
-      //     GoRoute(
-      //       path: ':id',
-      //       builder: (_, state) => CardDetailPage(id: state.pathParameters['id']!),
-      //     ),
-      //   ],
-      // ),
+      // ── Requests ─────────────────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.requests,
+        builder: (_, __) => RequestsPage(
+          requestsController: requestsController,
+          authController: authController,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.requestDetail,
+        builder: (_, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+
+          if (id == null) {
+            return const _RouterErrorPage(
+              error: AppException('Некорректный ID заявки'),
+            );
+          }
+
+          return RequestDetailPage(
+            requestId: id,
+            requestsController: requestsController,
+            authController: authController,
+          );
+        },
+      ),
+
+      // ── Clients ──────────────────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.clients,
+        builder: (_, __) => ClientsPage(
+          clientsController: clientsController,
+          authController: authController,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.clientDetail,
+        builder: (_, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+
+          if (id == null) {
+            return const _RouterErrorPage(
+              error: AppException('Некорректный ID клиента'),
+            );
+          }
+
+          return ClientDetailPage(
+            clientId: id,
+            clientsController: clientsController,
+            requestsController: requestsController,
+            authController: authController,
+          );
+        },
+      ),
+
+      // ── Settings ─────────────────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (_, __) => SettingsPage(
+          authController: authController,
+        ),
+      ),
     ],
 
-    // Централизованная обработка ошибок навигации
     errorBuilder: (_, state) => _RouterErrorPage(error: state.error),
   );
 }
 
 /// Auth-guard: решает куда редиректить при каждом переходе.
-///
-/// Логика:
-/// - [checking]        → всегда на splash (идёт восстановление сессии)
-/// - [unauthenticated] → закрытые маршруты перекидываем на /login
-/// - [authenticated]   → открытые маршруты перекидываем на /home
 GoRouterRedirect _authGuard(AuthController authController) {
   return (BuildContext context, GoRouterState state) {
     final status = authController.status;
@@ -92,7 +146,7 @@ GoRouterRedirect _authGuard(AuthController authController) {
     // 2. После проверки — уходим со splash
     if (location == AppRoutes.splash) {
       return status == AuthStatus.authenticated
-          ? AppRoutes.home
+          ? AppRoutes.requests
           : AppRoutes.login;
     }
 
@@ -106,7 +160,7 @@ GoRouterRedirect _authGuard(AuthController authController) {
 
     // 4. Авторизован → не пускаем на login/register
     if (status == AuthStatus.authenticated && isOnAuthPage) {
-      return AppRoutes.home;
+      return AppRoutes.requests;
     }
 
     return null;
