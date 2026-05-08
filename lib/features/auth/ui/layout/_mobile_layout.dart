@@ -8,7 +8,7 @@ class MobileAuthLayout extends StatelessWidget {
 
   static const double _kModalMaxWidth = 420;
   static const EdgeInsets _kPadding = EdgeInsets.symmetric(
-    horizontal: 20,
+    horizontal: 0,
     vertical: 24,
   );
 
